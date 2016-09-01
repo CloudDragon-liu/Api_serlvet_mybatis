@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    status : 这个用于设置log4j2自身内部的信息输出,可以不设置,当设置成trace时,会看到log4j2内部各种详细输出
+    monitorInterval : Log4j能够自动检测修改配置文件和重新配置本身, 设置间隔秒数。
+-->
+<configuration status="OFF">
+	<Properties>
+		<!-- 配置日志文件输出目录 -->
+		<Property name="LOG_DIR">D://logs</Property>
+		<Property name="LOG_PATTERNLAYOUT">[%-5p] [%d{yyyy-MM-dd HH:mm:ss}] %c - %M - %m%n</Property>
+	</Properties>
+	<appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<!-- 控制台只输出level及以上级别的信息(onMatch),其他的直接拒绝(onMismatch) -->
+			<ThresholdFilter level="debug" onMatch="ACCEPT"	onMismatch="DENY" />
+			<PatternLayout pattern="${LOG_PATTERNLAYOUT}"/>
+		</Console>
+		
+		<RollingFile name="RollingFile" fileName="${LOG_DIR}/Api.log"
+			filePattern="${LOG_DIR}/Api-%d{yyyy-MM-dd}-%i.log">
+			<PatternLayout pattern="${LOG_PATTERNLAYOUT}" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="30M" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
+			</Policies>
+		</RollingFile>
+		
+		<RollingFile name="RollingErrFile" fileName="${LOG_DIR}/ApiErr.log "
+			filePattern="${LOG_DIR}/ApiErr-%d{yyyy-MM-dd}-%i.log">
+			<ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY" />
+			<PatternLayout pattern="${LOG_PATTERNLAYOUT}" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2KB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
+			</Policies>
+		</RollingFile>
+	</appenders>
+
+	<loggers>
+		<root level="debug">
+			<appender-ref ref="Console" />
+			<appender-ref ref="RollingFile" />
+			<appender-ref ref="RollingErrFile" />
+		</root>
+		
+		 <!-- 第三方日志系统 -->
+        <logger name="org.springframework.core" level="debug"/>
+        <logger name="org.springframework.beans" level="debug"/>
+        <logger name="org.springframework.context" level="debug"/>
+        <logger name="org.springframework.web" level="debug"/>
+        <logger name="org.jboss.netty" level="debug"/>
+        <logger name="org.apache.http" level="debug"/>
+        
+        <!-- 日志实例(info),其中'service-log'继承root,但是root将日志输出控制台,而'service-log'将日志输出到文件,通过属性'additivity="false"'将'service-log'的
+             的日志不再输出到控制台 -->
+<!--         <logger name="service_log" level="info" includeLocation="true" additivity="true">
+            <appender-ref ref="RollingFile"/>
+        </logger> -->
+        
+	</loggers>
+</configuration>  
